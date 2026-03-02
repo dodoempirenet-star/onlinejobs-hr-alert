@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import os
+from datetime import datetime
 
 URL = "https://www.onlinejobs.ph/jobseekers/search/c/human-resources--hr-management"
 
@@ -21,19 +22,20 @@ def get_jobs():
     response = requests.get(URL, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
+    today_str = datetime.utcnow().strftime("%Y-%m-%d")
+
     jobs = []
 
-    job_cards = soup.find_all("div")
-
-    for card in job_cards:
+    for card in soup.find_all("div"):
         text = card.get_text()
 
-        if "Today" in text:
-            link_tag = card.find("a", href=True)
-            if link_tag and "/job/" in link_tag["href"]:
-                title = link_tag.text.strip()
-                link = "https://www.onlinejobs.ph" + link_tag["href"]
-                jobs.append((title, link))
+        if "Posted on" in text:
+            if today_str in text:
+                link_tag = card.find("a", href=True)
+                if link_tag and "/job/" in link_tag["href"]:
+                    title = link_tag.text.strip()
+                    link = "https://www.onlinejobs.ph" + link_tag["href"]
+                    jobs.append((title, link))
 
     return list(set(jobs))
 
@@ -55,7 +57,7 @@ def main():
 
     if new_jobs:
         for title, link in new_jobs:
-            message = f"New HR Job (Today):\n{title}\n{link}"
+            message = f"New HR Job Posted Today:\n{title}\n{link}"
             send_telegram(message)
 
     save_jobs(current_jobs)
