@@ -5,7 +5,6 @@ import os
 
 URL = "https://www.onlinejobs.ph/jobseekers/search/c/human-resources--hr-management"
 
-# TEMPORARY VALUES (we will remove these later)
 BOT_TOKEN = "8670907906:AAFKNwwIc9Jx0bZDYMhJdwQ0y0Chlg-gAhY"
 CHAT_ID = "1520619770"
 
@@ -24,11 +23,17 @@ def get_jobs():
 
     jobs = []
 
-    for link in soup.find_all("a", href=True):
-        if "/job/" in link["href"]:
-            title = link.text.strip()
-            full_link = "https://www.onlinejobs.ph" + link["href"]
-            jobs.append((title, full_link))
+    job_cards = soup.find_all("div")
+
+    for card in job_cards:
+        text = card.get_text()
+
+        if "Today" in text:
+            link_tag = card.find("a", href=True)
+            if link_tag and "/job/" in link_tag["href"]:
+                title = link_tag.text.strip()
+                link = "https://www.onlinejobs.ph" + link_tag["href"]
+                jobs.append((title, link))
 
     return list(set(jobs))
 
@@ -50,7 +55,7 @@ def main():
 
     if new_jobs:
         for title, link in new_jobs:
-            message = f"New HR Job:\n{title}\n{link}"
+            message = f"New HR Job (Today):\n{title}\n{link}"
             send_telegram(message)
 
     save_jobs(current_jobs)
