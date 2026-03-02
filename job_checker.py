@@ -7,8 +7,8 @@ import pytz
 
 URL = "https://www.onlinejobs.ph/jobseekers/search/c/human-resources--hr-management"
 
-BOT_TOKEN = "8670907906:AAFKNwwIc9Jx0bZDYMhJdwQ0y0Chlg-gAhY"
-CHAT_ID = "1520619770"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 TIMEZONE = pytz.timezone("Asia/Manila")
 
